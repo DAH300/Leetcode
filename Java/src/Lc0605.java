@@ -23,35 +23,35 @@ public class Lc0605 {
             }
             return false;
         }
+    }
+    
+    public static void main(String[] args) {
 
-        public static void main(String[] args) {
+        // Example 1:
+        // Input: flowerbed = [1,0,0,0,1], n = 1
+        // Output: true
 
-            // Example 1:
-            // Input: flowerbed = [1,0,0,0,1], n = 1
-            // Output: true
+        // Example 2:
+        // Input: flowerbed = [1,0,0,0,1], n = 2
+        // Output: false
 
-            // Example 2:
-            // Input: flowerbed = [1,0,0,0,1], n = 2
-            // Output: false
+        Solution sol = new Solution();
 
-            Solution sol = new Solution();
+        int[] f1 = { 1, 0, 0, 0, 1 };
+        int n1 = 1;
 
-            int[] f1 = { 1, 0, 0, 0, 1 };
-            int n1 = 1;
+        int[] f2 = { 1, 0, 0, 0, 1 };
+        int n2 = 2;
 
-            int[] f2 = { 1, 0, 0, 0, 1 };
-            int n2 = 2;
+        int[] f3 = { 1, 0, 0, 0, 0, 1 };
+        int n3 = 2;
 
-            int[] f3 = { 1, 0, 0, 0, 0, 1 };
-            int n3 = 2;
+        int[] f4 = { 1, 0, 1, 0, 1, 0, 1 };
+        int n4 = 0;
 
-            int[] f4 = { 1, 0, 1, 0, 1, 0, 1 };
-            int n4 = 0;
+        int[] f5 = { 1, 0, 0, 0, 1, 0, 0 };
+        int n5 = 2;
 
-            int[] f5 = { 1, 0, 0, 0, 1, 0, 0 };
-            int n5 = 2;
-
-            System.out.println(sol.canPlaceFlowers(f3, n3));
-        }
+        System.out.println(sol.canPlaceFlowers(f3, n3));
     }
 }
