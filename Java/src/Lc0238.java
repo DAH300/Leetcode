@@ -19,6 +19,8 @@ public class Lc0238 {
             // return result;
             // }
 
+            // Potential to speed up if I special case an array with a 0?
+
             int[] result = new int[nums.length];
             Arrays.fill(result, 1);
 
