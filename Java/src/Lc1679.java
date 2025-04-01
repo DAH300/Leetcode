@@ -44,7 +44,6 @@ public class Lc1679 {
             }
             return maxOp;
         }
-
     }
 
     public static void main(String[] args) {
