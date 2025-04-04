@@ -218,7 +218,6 @@ class BillTrackerApp:
         notebook = ttk.Notebook(history_window)
         notebook.pack(fill=tk.BOTH, expand=True)
 
-        # Populate the Text widget with history entries
         grouped = {}
         for entry in history:
             grouped.setdefault(entry['name'], []).append(entry)
