@@ -1,42 +1,8 @@
 public class Lc0643 {
 
     public static class Solution {
-        public double findMaxAverageEww(int[] nums, int k) {
-
-            int left = 0;
-            int right = k;
-            int sum = 0;
-            double avg = 0;
-            double maxAvg = Integer.MIN_VALUE;
-
-            if (k >= nums.length) {
-                for (int i = 0; i < nums.length; i++) {
-                    sum += nums[i];
-                }
-                maxAvg = (double) sum / k;
-            } else {
-                for (int i = 0; i <= nums.length - k; i++) {
-                    sum = 0;
-                    avg = 0;
-                    for (int j = left; j < right; j++) {
-                        sum += nums[j];
-                    }
-                    avg = (double) sum / k;
-
-                    if (avg >= maxAvg) {
-                        maxAvg = avg;
-                    }
-                    left++;
-                    right++;
-                }
-            }
-            return maxAvg;
-        }
-
         public double findMaxAverage(int[] nums, int k) {
 
-            int left = 0;
-            int right = k;
             int sum = 0;
             int maxSum = Integer.MIN_VALUE;
             double maxAvg = 0;
@@ -47,7 +13,9 @@ public class Lc0643 {
             maxSum = sum;
             for (int i = k; i < nums.length; i++) {
                 sum += nums[i] - nums[i - k];
-                maxSum = Math.max(maxSum, sum);
+                if (sum > maxSum) {
+                    maxSum = sum;
+                }
             }
             maxAvg = (double) maxSum / k;
 
