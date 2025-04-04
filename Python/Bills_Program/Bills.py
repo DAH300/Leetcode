@@ -1,5 +1,5 @@
 import tkinter as tk
-from tkinter import messagebox, simpledialog
+from tkinter import messagebox, simpledialog, ttk
 import json
 import webbrowser
 from pathlib import Path
@@ -8,7 +8,6 @@ from dateutil.relativedelta import relativedelta  # Handles accurate month jumps
 
 BILLS_FILE = Path("bills.json")
 HISTORY_FILE = Path("bill_history.json")
-
 
 FREQUENCY_OPTIONS = ["Monthly", "6 Months", "Yearly"]
 
@@ -41,7 +40,6 @@ class Bill:
                     data["frequency"], data.get("fixed_day"), data["paid"], data["link"])
 
     def update_due_date(self):
-        """Advance the due date correctly based on frequency and fixed days."""
         today = datetime.today().date()
         due_date = datetime.strptime(self.due_date, "%Y-%m-%d").date()
 
@@ -55,12 +53,10 @@ class Bill:
             else:
                 return
 
-            # If the bill has a fixed day, adjust the day of the month
             if self.fixed_day:
                 try:
                     new_due_date = new_due_date.replace(day=self.fixed_day)
                 except ValueError:
-                    # Handles months with fewer days (e.g., setting Feb 30 would be invalid)
                     new_due_date = new_due_date.replace(day=1) + relativedelta(days=-1)
 
             self.due_date = new_due_date.strftime("%Y-%m-%d")
@@ -77,20 +73,16 @@ class BillTrackerApp:
 
         self.listbox = tk.Listbox(root, width=100, height=15)
         self.listbox.grid(row=0, column=0, padx=10, pady=10)
-
         self.listbox.config(font=('Helvetica', 14))
 
         button_frame = tk.Frame(root)
         button_frame.grid(row=1, column=0, pady=10)
-
 
         tk.Button(button_frame, text="Add Bill", command=self.add_bill, font=("Helvetica", 14)).grid(row=0, column=0, padx=5)
         tk.Button(button_frame, text="Mark Paid/Unpaid", command=self.toggle_paid, font=("Helvetica", 14)).grid(row=0, column=1, padx=5)
         tk.Button(button_frame, text="Open Link", command=self.open_link, font=("Helvetica", 14)).grid(row=0, column=2, padx=5)
         tk.Button(button_frame, text="Update Bills", command=self.update_bills, font=("Helvetica", 14)).grid(row=0, column=3, padx=5)
         tk.Button(button_frame, text="View History", command=self.view_history, font=("Helvetica", 14)).grid(row=0, column=4, padx=5)
-
-
 
         self.refresh_list()
 
@@ -107,7 +99,7 @@ class BillTrackerApp:
 
     def refresh_list(self):
         self.listbox.delete(0, tk.END)
-        self.bills.sort(key=lambda b: b.due_date)  # Ensure sorted order
+        self.bills.sort(key=lambda b: b.due_date)
         for i, bill in enumerate(self.bills, 1):
             status = "✅ Paid" if bill.paid else "❌ Not Paid"
             due_status = f"(Due: {bill.due_date})"
@@ -165,13 +157,11 @@ class BillTrackerApp:
 
         bill.paid = not bill.paid
 
-        # Log history ONLY when bill is marked as paid
         if bill.paid:
             self.save_bill_history(bill)
 
         self.save_bills()
         self.refresh_list()
-
 
     def open_link(self):
         selected = self.listbox.curselection()
@@ -183,7 +173,6 @@ class BillTrackerApp:
         webbrowser.open(self.bills[index].link)
 
     def update_bills(self):
-        """Update bills based on due dates."""
         today = datetime.today().strftime("%Y-%m-%d")
         for bill in self.bills:
             bill.update_due_date()
@@ -221,27 +210,34 @@ class BillTrackerApp:
         with open(HISTORY_FILE, "r") as f:
             history = json.load(f)
 
-        # Create a new window for displaying history
         history_window = tk.Toplevel(self.root)
         history_window.title("Bill Payment History")
+        history_window.geometry("700x500")
 
         # Create a Text widget to display history
-        history_text = tk.Text(history_window, width=100, height=20, font=('Helvetica', 12))
-        history_text.pack(padx=10, pady=10)
+        notebook = ttk.Notebook(history_window)
+        notebook.pack(fill=tk.BOTH, expand=True)
 
         # Populate the Text widget with history entries
+        grouped = {}
         for entry in history:
-            history_text.insert(tk.END, f"Name: {entry['name']}\n")
-            history_text.insert(tk.END, f"Amount Paid: ${entry['amount']}\n")
-            history_text.insert(tk.END, f"Paid Date: {entry['paid_date']}\n")
-            history_text.insert(tk.END, f"Due Date: {entry['due_date']}\n")
-            history_text.insert(tk.END, f"Frequency: {entry['frequency']}\n")
-            history_text.insert(tk.END, f"Link: {entry['link']}\n")
-            history_text.insert(tk.END, "-" * 50 + "\n")
+            grouped.setdefault(entry['name'], []).append(entry)
 
-        # Make the text widget read-only
-        history_text.config(state=tk.DISABLED)
+        for name, entries in grouped.items():
+            frame = ttk.Frame(notebook)
+            notebook.add(frame, text=name)
 
+            tree = ttk.Treeview(frame, columns=("Amount", "Paid Date", "Due Date"), show='headings')
+            tree.heading("Amount", text="Amount Paid")
+            tree.heading("Paid Date", text="Paid Date")
+            tree.heading("Due Date", text="Due Date")
+            tree.column("Amount", width=100, anchor=tk.CENTER)
+            tree.column("Paid Date", width=120, anchor=tk.CENTER)
+            tree.column("Due Date", width=120, anchor=tk.CENTER)
+            tree.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+            for entry in entries:
+                tree.insert("", tk.END, values=(f"${entry['amount']:.2f}", entry['paid_date'], entry['due_date']))
 
 
 if __name__ == "__main__":
